@@ -80,6 +80,38 @@ MobPae is a fintech platform that enables salaried employees to access their ear
 | [Storage (R2)](./integrations/storage.md) | Cloudflare R2 setup, signed URLs, file types |
 | [Email](./integrations/email.md) | Transactional emails and templates |
 
+### Guides
+| Document | Description |
+|---|---|
+| [Local Setup](./guides/local-setup.md) | Clone, install, configure, and run all services locally |
+| [Test Accounts](./guides/test-accounts.md) | All seed user credentials and Razorpay test cards |
+
+### Runbooks
+| Document | Description |
+|---|---|
+| [Manual Disbursal](./runbooks/manual-disbursal.md) | Step-by-step: disburse an advance to an employee |
+| [Generate Settlement](./runbooks/generate-settlement.md) | Create and send monthly settlement invoice to employer |
+| [Failed Payment](./runbooks/failed-payment.md) | Handle failed or stuck Razorpay platform fee payments |
+| [Onboard Employer](./runbooks/onboard-employer.md) | End-to-end: get a new employer live on the platform |
+
+### Architecture Decisions
+| Document | Description |
+|---|---|
+| [ADR 001: Snapshot Pattern](./decisions/001-snapshot-pattern.md) | Why loan terms are frozen at submission time |
+| [ADR 002: Self-Funded First](./decisions/002-self-funded-first.md) | Why MobPae self-funds advances before NBFC onboarding |
+| [ADR 003: Platform Fee vs Membership](./decisions/003-platform-fee-not-membership.md) | Why we switched from subscription to per-advance fee |
+| [ADR 004: Two-Step Disbursal](./decisions/004-two-step-disbursal.md) | Why disbursal is split into create + trigger steps |
+| [ADR 005: One Active Advance](./decisions/005-one-active-advance.md) | Why employees can only have one advance per cycle |
+
+### Reference
+| Document | Description |
+|---|---|
+| [Glossary](./glossary.md) | Every domain term defined |
+| [Security](./security.md) | Auth model, RBAC, webhook security, known gaps |
+| [Deployment](./deployment.md) | How to deploy every service to production |
+| [Roadmap](./roadmap.md) | Short, medium, and long-term product direction |
+| [Compliance: RBI & EWA](./compliance/rbi-ewa-notes.md) | Regulatory notes on Earned Wage Access in India |
+
 ---
 
 ## Repositories
