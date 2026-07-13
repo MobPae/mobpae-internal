@@ -2,7 +2,8 @@
 
 MobPae sends transactional emails for account lifecycle and loan workflow events.
 
-> **Note:** The email provider and template engine are configured in the backend's notification/email module. Check `src/notifications/` or the mail service for the active provider (e.g., SendGrid, Nodemailer, AWS SES).
+> **Provider: Brevo (formerly Sendinblue)**
+> SMTP relay via Nodemailer. Host: `smtp-relay.brevo.com`, Port: `587`.
 
 ---
 
@@ -65,12 +66,19 @@ Same flow for employer onboarding, pointing to `{EMPLOYER_APP_URL}`.
 ## Environment Variables
 
 ```env
-MAIL_HOST=smtp.sendgrid.net
-MAIL_PORT=587
-MAIL_USER=apikey
-MAIL_PASS=SG.xxxx
-MAIL_FROM=noreply@mobpae.com
+# Brevo SMTP relay
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=<brevo-login-email>
+SMTP_PASS=<brevo-smtp-key>
+SMTP_SECURE=false
+MAIL_FROM=support@mobpae.com
+MAIL_FROM_NAME=MobPae
+
+# App URLs (used in email links)
 EMPLOYEE_APP_URL=https://app.mobpae.com
 EMPLOYER_APP_URL=https://employer.mobpae.com
 FRONTEND_URL=https://app.mobpae.com   # used for password reset links
 ```
+
+**Finding your Brevo SMTP key:** Brevo Dashboard → Senders & IPs → SMTP → Generate a new SMTP key. The `SMTP_USER` is your Brevo account email; `SMTP_PASS` is the generated key (not your login password).

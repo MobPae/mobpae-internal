@@ -323,3 +323,271 @@ Placeholder for future NBFC partnerships. Currently all advances are self-funded
 | `code` | String (unique) | e.g. MOBPAE_SELF, HDFC_NBFC |
 | `type` | Enum | SELF / NBFC / BANK |
 | `status` | Enum | ACTIVE / INACTIVE |
+
+---
+
+## Model: LoanApplicationHistory
+
+Audit trail of every status change on a `LoanApplication`. One row per transition.
+
+| Field | Type | Description |
+|---|---|---|
+| `loanApplicationId` | String | FK to LoanApplication |
+| `previousStatus` | Enum? | Status before the change (null on first entry) |
+| `newStatus` | Enum | Status after the change |
+| `changedBy` | String? | userId of who triggered the change |
+| `actorRole` | String? | Role of actor (EMPLOYEE / EMPLOYER / ADMIN / SYSTEM) |
+| `remarks` | String? | Optional reason or note |
+| `createdAt` | DateTime | When the transition happened |
+
+---
+
+## Model: SettlementLineItem
+
+One row per employee repayment included in an `EmployerSettlement`. All amounts and identifiers are frozen at settlement creation time.
+
+| Field | Type | Description |
+|---|---|---|
+| `settlementId` | String | FK to EmployerSettlement |
+| `repaymentId` | String (unique) | FK to Repayment — each repayment in at most one settlement |
+| `loanApplicationId` | String | FK to LoanApplication |
+| `employeeId` | String | FK to Employee |
+| `employeeCode` | String | Frozen at settlement time |
+| `employeeName` | String | Frozen at settlement time |
+| `loanApplicationNumber` | String | Frozen at settlement time |
+| `principalAmount` | Decimal | Frozen |
+| `interestAmount` | Decimal | Frozen (default 0) |
+| `processingFee` | Decimal | Frozen (default 0) |
+| `gstAmount` | Decimal | Frozen (default 0) |
+| `totalDeductionAmount` | Decimal | Total employer owes for this employee |
+| `status` | Enum SettlementLineItemStatus | INCLUDED / EXCLUDED / DISPUTED |
+| `remarks` | String? | Optional note |
+
+---
+
+## Model: SettlementPayment
+
+Records one payment event against an `EmployerSettlement`. Multiple payments are allowed (partial payments).
+
+| Field | Type | Description |
+|---|---|---|
+| `settlementId` | String | FK to EmployerSettlement |
+| `amount` | Decimal | Amount paid in this tranche |
+| `paymentMethod` | Enum SettlementPaymentMethod | NEFT / RTGS / IMPS / UPI / NACH / CHEQUE |
+| `paymentReference` | String? | MobPae-assigned reference |
+| `bankReference` | String? | Employer's UTR/NEFT reference |
+| `transactionDate` | DateTime | Date of transaction |
+| `receivedDate` | DateTime? | Date MobPae received the funds |
+| `verifiedBy` | String? | Admin userId who verified |
+| `verifiedAt` | DateTime? | |
+| `status` | Enum SettlementPaymentStatus | PENDING / VERIFIED / REJECTED |
+| `remarks` | String? | |
+
+---
+
+## Model: Notification
+
+In-app notifications stored per user. Read via `GET /notifications/my`.
+
+| Field | Type | Description |
+|---|---|---|
+| `userId` | String | FK to User |
+| `title` | String | Short notification title |
+| `message` | String | Full notification body |
+| `type` | Enum NotificationType | SYSTEM / APPLICATION_SUBMITTED / FEE_PAID / etc. |
+| `isRead` | Boolean | Default false |
+| `createdAt` | DateTime | |
+
+---
+
+## Model: AuditLog
+
+Immutable log of every admin action. Never edited, only appended.
+
+| Field | Type | Description |
+|---|---|---|
+| `userId` | String? | Who performed the action (null for system actions) |
+| `action` | String | e.g. DISBURSAL_CREATED, KYC_VERIFIED, EMPLOYER_SUSPENDED |
+| `entityType` | String | e.g. Disbursal, KycDocument, Employer |
+| `entityId` | String | UUID of the affected record |
+| `oldValue` | Json? | State before the change |
+| `newValue` | Json? | State after the change |
+| `createdAt` | DateTime | |
+
+---
+
+## Model: UserSession
+
+Stores refresh tokens. One row per active device/session per user.
+
+| Field | Type | Description |
+|---|---|---|
+| `userId` | String | FK to User |
+| `refreshToken` | String | Hashed refresh token |
+| `deviceInfo` | String? | User agent string |
+| `ipAddress` | String? | IP at session creation |
+| `isActive` | Boolean | False = logged out / rotated |
+| `createdAt` | DateTime | |
+| `updatedAt` | DateTime | Updated on token rotation |
+
+---
+
+## Model: PasswordResetToken
+
+Short-lived token for the "forgot password" flow. Single-use.
+
+| Field | Type | Description |
+|---|---|---|
+| `userId` | String | FK to User |
+| `tokenHash` | String | Hashed token value |
+| `tokenSelector` | String (unique) | URL-safe selector used to look up the record |
+| `expiresAt` | DateTime | 1 hour from creation |
+| `usedAt` | DateTime? | Set when token is consumed |
+| `createdAt` | DateTime | |
+
+**Usage:** reset link = `{FRONTEND_URL}/reset-password?token={selector}:{rawToken}`
+
+---
+
+## Model: PaymentOrder
+
+Unified Razorpay order record. Used for both platform fees and (legacy) membership payments.
+
+| Field | Type | Description |
+|---|---|---|
+| `provider` | Enum PaymentProvider | RAZORPAY (only value currently) |
+| `providerOrderId` | String (unique) | Razorpay's `order_xxxx` ID |
+| `amount` | Int | Amount in paise (₹ × 100) |
+| `currency` | String | INR |
+| `employeeId` | String | FK to Employee |
+| `purpose` | Enum PaymentOrderPurpose | PLATFORM_FEE / MEMBERSHIP |
+| `planKey` | String? | FK to MembershipPlanConfig (membership only) |
+| `loanApplicationFeeId` | String? | FK to LoanApplicationFee (platform fee only) |
+| `couponCode` | String? | Coupon applied (membership only) |
+| `discountAmount` | Int | Discount in paise (default 0) |
+| `status` | Enum PaymentOrderStatus | CREATED / PAID / FAILED / EXPIRED |
+| `notes` | Json? | Arbitrary metadata |
+| `expiresAt` | DateTime | Order expiry (15 min from creation) |
+
+**Relations:** has many `PaymentEvent`, optionally linked to `Membership` or `LoanApplicationFee`.
+
+---
+
+## Model: PaymentEvent
+
+Every webhook event from Razorpay for a `PaymentOrder`. Immutable event log.
+
+| Field | Type | Description |
+|---|---|---|
+| `orderId` | String | FK to PaymentOrder |
+| `providerPaymentId` | String? | Razorpay `pay_xxxx` ID |
+| `providerSignature` | String? | HMAC signature from webhook/verify |
+| `eventType` | String | e.g. payment.captured, payment.failed |
+| `source` | String | WEBHOOK or VERIFY_PAYMENT (client-side) |
+| `status` | String | Razorpay payment status |
+| `method` | String? | upi / card / netbanking |
+| `errorCode` | String? | Razorpay error code if failed |
+| `errorDescription` | String? | Human-readable error |
+| `rawPayload` | Json? | Full Razorpay webhook payload |
+| `capturedAt` | DateTime? | When Razorpay captured the payment |
+| `createdAt` | DateTime | |
+
+---
+
+## Model: EmployerEnquiry
+
+Leads captured from the MobPae website's "Request a Demo" form. Pre-onboarding record.
+
+| Field | Type | Description |
+|---|---|---|
+| `companyName` | String | |
+| `contactPerson` | String | |
+| `email` | String | |
+| `phone` | String | |
+| `employeeCount` | Int? | Approximate headcount |
+| `status` | Enum EmployerEnquiryStatus | NEW / CONTACTED / CONVERTED / REJECTED |
+| `remarks` | String? | Internal notes |
+| `employerId` | String? (unique) | Set when enquiry is converted to a live employer |
+
+---
+
+## Model: Setting
+
+Key-value store for system configuration. Admin-editable.
+
+| Field | Type | Description |
+|---|---|---|
+| `key` | String (unique) | Setting name (e.g. PLATFORM_FEE_CONFIG) |
+| `value` | String | JSON-encoded value |
+
+**Known keys:**
+- `PLATFORM_FEE_CONFIG` → `{ "amount": 175, "currency": "INR" }`
+
+---
+
+## Model: AppInformation
+
+Content blocks shown in the employee app (FAQ, help text, legal content).
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | Enum AppInfoType (unique) | FAQ / HELP / TERMS / PRIVACY / etc. |
+| `title` | String | Display title |
+| `content` | Text | Markdown or plain text content |
+| `version` | String? | Content version label |
+| `isActive` | Boolean | Whether to show this content |
+
+---
+
+## Model: Membership *(Deprecated)*
+
+Legacy monthly subscription model, replaced by the platform fee. Still in schema for historical data; no new records are created.
+
+| Field | Type | Description |
+|---|---|---|
+| `employeeId` | String (unique) | FK to Employee |
+| `planKey` | String | Membership plan identifier |
+| `planType` | String | MONTHLY / ANNUAL |
+| `planName` | String | Display name |
+| `amount` | Decimal | Plan price |
+| `amountPaid` | Decimal? | Actual amount collected |
+| `startDate` | DateTime | |
+| `endDate` | DateTime | |
+| `status` | Enum MembershipStatus | PENDING / ACTIVE / EXPIRED / CANCELLED |
+| `couponCode` | String? | Applied coupon |
+| `discountAmount` | Decimal? | |
+| `paymentOrderId` | String? (unique) | FK to PaymentOrder |
+| `verifiedBy` | String? | Admin userId |
+
+---
+
+## Model: MembershipPlanConfig *(Deprecated)*
+
+Configuration for legacy membership plans. Not used for new signups.
+
+| Field | Type | Description |
+|---|---|---|
+| `planKey` | String (unique) | e.g. MONTHLY_99 |
+| `planName` | String | |
+| `amount` | Decimal | Price |
+| `validityDays` | Int | Duration |
+| `billingLabel` | String | e.g. "per month" |
+| `perMonthLabel` | String? | Annualized monthly cost label |
+| `isPreferred` | Boolean | Highlight as recommended |
+| `isActive` | Boolean | |
+| `sortOrder` | Int | Display order |
+
+---
+
+## Model: MembershipCoupon *(Deprecated)*
+
+Discount coupons for legacy membership payments.
+
+| Field | Type | Description |
+|---|---|---|
+| `code` | String (unique) | Coupon code |
+| `discountAmount` | Decimal | Fixed ₹ discount |
+| `isActive` | Boolean | |
+| `validTill` | DateTime? | Expiry date (null = no expiry) |
+| `usageLimit` | Int? | Max total uses (null = unlimited) |
+| `usedCount` | Int | Times used so far |

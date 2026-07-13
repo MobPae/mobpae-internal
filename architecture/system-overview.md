@@ -86,7 +86,7 @@
 | Database | PostgreSQL | Managed; connect via `DATABASE_URL` |
 | File Storage | Cloudflare R2 | S3-compatible; signed URLs for secure access |
 | Payments | Razorpay | Orders for platform fee; Payouts for disbursal (planned) |
-| Email | SMTP / Nodemailer | Transactional emails |
+| Email | Brevo (SMTP) via Nodemailer | Transactional emails — activation, resets, alerts |
 | Hosting | TBD | Backend + frontends deployed separately |
 
 ---
