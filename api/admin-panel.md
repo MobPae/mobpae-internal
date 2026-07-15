@@ -81,6 +81,38 @@ Request: {
 }
 ```
 
+### GET /employers/:id/members
+List all active and suspended team members for any employer.
+```json
+Response: [
+  {
+    "id": "uuid",
+    "role": "OWNER",
+    "status": "ACTIVE",
+    "officeCode": null,
+    "joinedAt": "2024-01-01T00:00:00Z",
+    "user": { "id": "uuid", "email": "owner@ltim.com", "lastLogin": "2024-07-15T09:00:00Z" }
+  }
+]
+```
+
+### GET /employers/:id/invites
+List pending invites for any employer.
+```json
+Response: [
+  {
+    "id": "uuid",
+    "email": "user@ltim.com",
+    "role": "HR",
+    "expiresAt": "2024-07-18T10:00:00Z",
+    "resendCount": 0,
+    "lastSentAt": "2024-07-15T10:00:00Z",
+    "createdAt": "2024-07-15T10:00:00Z",
+    "invitedByUser": { "email": "owner@ltim.com" }
+  }
+]
+```
+
 ---
 
 ## Employees

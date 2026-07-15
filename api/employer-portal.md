@@ -264,6 +264,100 @@ Response: { "message": "Report sent to priya@ltim.com" }
 
 ---
 
+## Team Management
+
+### GET /employer-members/invites/preview?token=
+Public endpoint (no auth). Returns invite metadata so the frontend can render a confirmation screen before the user sets a password.
+```json
+Response: {
+  "email": "newuser@ltim.com",
+  "role": "ADMIN",
+  "companyName": "LTIMindtree",
+  "expiresAt": "2024-07-18T10:00:00Z"
+}
+```
+
+### POST /employer-members/invites/accept
+Public endpoint (no auth). Accepts an invite and creates the user account.
+```json
+Request:  { "token": "<raw token from email>", "password": "min 8 chars" }
+Response: { "message": "Invite accepted. You can now sign in.", "email": "newuser@ltim.com" }
+```
+
+### GET /employer-members/invites
+List pending invites for this employer. Requires `MEMBER_VIEW` permission.
+```json
+Response: [
+  {
+    "id": "uuid",
+    "email": "user@ltim.com",
+    "role": "HR",
+    "expiresAt": "2024-07-18T10:00:00Z",
+    "resendCount": 0,
+    "lastSentAt": "2024-07-15T10:00:00Z",
+    "createdAt": "2024-07-15T10:00:00Z",
+    "invitedByUser": { "email": "owner@ltim.com" }
+  }
+]
+```
+
+### POST /employer-members/invites
+Send a new invite. Requires `MEMBER_INVITE` permission.  
+Constraint: cannot invite to a role equal to or above your own.
+```json
+Request:  { "email": "user@ltim.com", "role": "HR" }
+Response: { "id": "uuid", "email": "user@ltim.com", "role": "HR", "expiresAt": "..." }
+```
+
+### POST /employer-members/invites/:id/resend
+Resend an invite — regenerates token, resets 72h expiry. Max 3 resends. Requires `MEMBER_INVITE`.
+```json
+Response: { "message": "Invite resent successfully" }
+```
+
+### DELETE /employer-members/invites/:id
+Revoke a pending invite. Requires `MEMBER_INVITE`.
+```json
+Response: { "message": "Invite revoked" }
+```
+
+### GET /employer-members
+List all active and suspended members. Requires `MEMBER_VIEW`.
+```json
+Response: [
+  {
+    "id": "uuid",
+    "role": "OWNER",
+    "status": "ACTIVE",
+    "officeCode": null,
+    "joinedAt": "2024-01-01T00:00:00Z",
+    "user": { "id": "uuid", "email": "owner@ltim.com", "lastLogin": "2024-07-15T09:00:00Z" }
+  }
+]
+```
+
+### PATCH /employer-members/:id/role
+Change a member's role. Requires `MEMBER_MANAGE`.  
+Constraint: cannot assign a role equal to or above your own.
+```json
+Request:  { "role": "FINANCE" }
+Response: { "id": "uuid", "role": "FINANCE" }
+```
+
+### PATCH /employer-members/:id/suspend
+Suspend a member. Requires `MEMBER_MANAGE`.
+```json
+Response: { "message": "Member suspended" }
+```
+
+### DELETE /employer-members/:id
+Remove a member permanently. Requires `MEMBER_MANAGE`.
+```json
+Response: { "message": "Member removed" }
+```
+
+---
+
 ## Notifications
 
 ### GET /notifications/my

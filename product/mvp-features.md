@@ -48,6 +48,8 @@ Status key: ✅ Live | 🔧 Partial / In Progress | 🔜 Planned
 | Product Config Override | ✅ | Set advance % override for their company |
 | Notifications | ✅ | In-app notification bell |
 | Settings | ✅ | Company profile, payroll calendar |
+| Team Management | 🔧 | Multi-user portal access; invite flow and accept page built; invite button UI gated as Beta |
+| Accept Invite Page | ✅ | `/invite/accept?token=...` — public page; shows company + role, sets password, creates account |
 
 ---
 
@@ -68,6 +70,7 @@ Status key: ✅ Live | 🔧 Partial / In Progress | 🔜 Planned
 | Settlement Management | ✅ | Generate, view, mark as paid, send report |
 | Loan Product Config | ✅ | Edit pricing rules, eligibility rules per product |
 | Employer Product Config | ✅ | Per-employer overrides |
+| Employer Team Visibility | ✅ | Team members + pending invites visible in employer management drawer |
 | Platform Fee Management | ✅ | View fees, waive individual fees |
 | Audit Logs | ✅ | Full action history |
 | Reports | 🔧 | Basic financial reports; more planned |
@@ -82,6 +85,8 @@ Status key: ✅ Live | 🔧 Partial / In Progress | 🔜 Planned
 | Feature | Status | Notes |
 |---|---|---|
 | Multi-role Auth (JWT) | ✅ | EMPLOYEE / EMPLOYER / ADMIN |
+| Multi-user Employer Auth | ✅ | EmployerMember model; JWT carries `employerId` + `employerRole`; EmployerPermissionGuard on all employer endpoints |
+| Employer Role Hierarchy | ✅ | OWNER > ADMIN > HR > FINANCE > VIEWER; per-role permission map |
 | Refresh Token Sessions | ✅ | Stored in DB; invalidated on logout |
 | Role-based Access Control | ✅ | Guards on every endpoint |
 | Versioned Loan Product Config | ✅ | Immutable once active; version chain |

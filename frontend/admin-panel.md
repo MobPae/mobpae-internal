@@ -86,8 +86,18 @@ src/
 ### Employers (`src/components/employers/`)
 
 - `EmployersTable` — paginated list with status, risk status filters
-- `EmployerManagementDrawer` — full employer detail; change status, override product config
+- `EmployerManagementDrawer` — full employer detail; change status, override product config, view team members and pending invites
 - `CreateEmployerDrawer` — form to create a new employer
+
+**EmployerManagementDrawer sections:**
+1. Company details (code, risk status, member since)
+2. Contact information
+3. Salary cycle configuration
+4. Salary advance override (editable ₹ cap)
+5. Recent salary requests
+6. **Team members** — lists active/suspended members with role badge, status, joined date
+7. **Pending invites** — lists open invites with role badge and expiry (hidden if none exist)
+8. Footer actions: Activate / Suspend / Reactivate / Generate Settlement
 
 ### Disbursals (`src/components/disbursals/`)
 
