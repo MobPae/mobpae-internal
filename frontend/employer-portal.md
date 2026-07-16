@@ -20,7 +20,9 @@ src/
 │   ├── salary-requests/
 │   ├── recoveries/
 │   ├── repayments/
+│   ├── reports/
 │   ├── settlements/
+│   ├── team/
 │   └── settings/
 ├── components/
 │   ├── layout/         (EmployerLayout, NotificationBell)
@@ -49,6 +51,7 @@ src/
 | `/repayments` | RepaymentsPage | Repayment schedule per employee |
 | `/settlements` | SettlementsPage | Monthly settlement invoices |
 | `/team` | TeamPage | Team members + pending invites; role-based actions (Beta) |
+| `/reports` | ReportsPage | Advance utilisation, repayment health, monthly trend, employee breakdown |
 | `/settings` | SettingsPage | Company profile |
 | `/profile` | ProfilePage | User profile |
 | `/notifications` | NotificationsPage | In-app notifications |
@@ -62,7 +65,7 @@ src/
 - Top header with company name and notification bell
 - Main content area
 
-Sidebar links: Dashboard, Employees, Salary Requests, Repayments, Settlements, Team, Settings, Profile.
+Sidebar links: Dashboard, Employees, Loan Applications, Repayments, Settlements, Reports, Salary Advance (settings), Team, Profile.
 
 ---
 
@@ -108,6 +111,29 @@ Permission gating:
 ```typescript
 const canManage = user?.employerRole === "OWNER" || user?.employerRole === "ADMIN";
 ```
+
+---
+
+## Reports Page
+
+`/reports` — `src/pages/reports/ReportsPage.tsx`
+
+Advance utilisation and repayment overview for the employer. Data is fetched from existing endpoints — no dedicated reports backend endpoint.
+
+**Data sources:**
+- `salaryRequestService.getSalaryRequests()` → `GET /loan-applications/employer`
+- `repaymentService.getRepayments()` → `GET /repayments/employer`
+
+**Date range filter:** This month / Last 3 months / Last 6 months / All time. Filter applies to all sections except the monthly trend chart (which always shows last 6 months).
+
+**Sections:**
+1. **Summary cards** — Total requests, Amount disbursed, Approval rate, Unique employees who used advances
+2. **Monthly trend bar chart** — Disbursed advances per month for last 6 months (CSS/div-based, no charting library)
+3. **Application status breakdown** — Stacked bar: Active/Disbursed, Repaid, Pending review, Rejected
+4. **Repayment health** — Stacked bar: Paid, Scheduled, Overdue; overdue amount alert shown if > 0
+5. **Top employees table** — Top 10 by total advance amount: name, code, count, total, last advance date
+
+**Important:** `mobpae-employer` has no charting library (recharts, chart.js etc.). All charts are CSS div bars with percentage-based widths via inline styles.
 
 ---
 
@@ -173,3 +199,6 @@ Tailwind CSS v4. Shared design tokens defined in CSS custom properties:
 | `src/components/layout/EmployerLayout.tsx` | App shell with sidebar |
 | `src/pages/salary-requests/SalaryRequestsPage.tsx` | Core approval workflow |
 | `src/pages/settlements/SettlementsPage.tsx` | Settlement management |
+| `src/pages/reports/ReportsPage.tsx` | Advance utilisation and repayment reports |
+| `src/pages/team/TeamPage.tsx` | Team member + invite management |
+| `src/pages/auth/AcceptInvitePage.tsx` | Public invite acceptance flow |
