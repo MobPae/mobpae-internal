@@ -1,6 +1,6 @@
 # Module: files & storage
 
-Handles file uploads (KYC, selfie, profile photo) and secure file access.
+Handles file uploads (KYC, profile photo) and secure file access.
 
 **Controller:** `src/files/files.controller.ts`  
 **Service:** `src/files/files.service.ts`  
@@ -32,7 +32,6 @@ Files are stored with organized key paths:
 | File Type | Key Pattern |
 |---|---|
 | KYC documents | `kyc/{employeeId}/{documentType}/{uuid}.{ext}` |
-| Selfie | `selfie/{employeeId}/{uuid}.{ext}` |
 | Profile photo | `profile/{employeeId}/{uuid}.{ext}` |
 
 The DB stores only the **file key** (e.g. `kyc/abc123/AADHAR/def456.jpg`), never the full URL.

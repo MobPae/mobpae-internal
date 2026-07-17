@@ -118,7 +118,7 @@ Admin
 
 ---
 
-## 4. File (KYC / Selfie) Data Flow
+## 4. File (KYC) Data Flow
 
 ```
 Employee App

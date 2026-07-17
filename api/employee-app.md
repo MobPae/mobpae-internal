@@ -10,7 +10,18 @@ Base URL: `https://api.mobpae.com` (or `http://localhost:3000` in dev)
 ### POST /auth/login  *(Public)*
 ```json
 Request:  { "email": "string", "password": "string" }
-Response: { "accessToken": "...", "refreshToken": "...", "user": { "id", "email", "role" } }
+Response: {
+  "accessToken": "...",
+  "refreshToken": "...",
+  "user": {
+    "id": "uuid",
+    "email": "string",
+    "role": "EMPLOYEE",
+    "employeeId": "uuid",
+    "passwordChanged": false,   // false → show forced password gate
+    "termsAccepted": false      // false → show T&C gate (checked after pwd gate)
+  }
+}
 ```
 
 ### POST /auth/refresh  *(Public)*
@@ -40,7 +51,24 @@ Response: { "message": "Password reset successful" }
 ### POST /auth/change-password
 ```json
 Request:  { "currentPassword": "string", "newPassword": "string" }
-Response: { "message": "Password changed" }
+
+// Forced first-time change: returns new tokens so the session continues
+Response (forced): {
+  "accessToken": "...",
+  "refreshToken": "...",
+  "termsAccepted": false   // false → show T&C gate next
+}
+
+// Voluntary change: invalidates all sessions; user must log in again
+Response (voluntary): { "success": true }
+```
+
+### POST /auth/accept-terms
+Records that the authenticated user has accepted the Terms & Conditions.  
+Called once after the forced password change gate passes.
+```json
+Request:  (no body)
+Response: { "success": true }
 ```
 
 ### GET /auth/me
@@ -80,7 +108,6 @@ Response: {
     "checks": {
       "kycComplete": true,
       "bankVerified": true,
-      "selfieVerified": true,
       "salaryMinimumMet": true,
       "tenureMet": true,
       "noActiveAdvance": true,
@@ -89,7 +116,6 @@ Response: {
   },
   "kycStatus": "VERIFIED",
   "bankStatus": "VERIFIED",
-  "selfieStatus": "VERIFIED",
   "activeApplication": null,
   "scheduledRepayment": null,
   "platformFee": {
@@ -116,9 +142,6 @@ Upload profile photo. `multipart/form-data` with field `file` (max 5 MB).
 ```json
 Response: { "profilePhotoUrl": "employees/uploads/uuid/profile.jpg" }
 ```
-
-### POST /employees/selfie
-Upload selfie for identity verification. Same format as profile photo.
 
 ---
 

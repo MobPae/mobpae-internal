@@ -1,6 +1,6 @@
 # Integration: Cloudflare R2 Storage
 
-Used for all private file uploads: KYC documents, selfies, and profile photos.
+Used for all private file uploads: KYC documents and profile photos.
 
 ---
 
@@ -51,11 +51,10 @@ Examples:
 employees/kyc/{employeeId}/AADHAR/document.jpg
 employees/kyc/{employeeId}/PAN/document.pdf
 employees/kyc/{employeeId}/SALARY_SLIP/document.jpg
-employees/selfie/{employeeId}/selfie.jpg
 employees/profile/{employeeId}/photo.jpg
 ```
 
-The key is what gets stored in the database (e.g., `KycDocument.filePath`, `Employee.selfieUrl`).
+The key is what gets stored in the database (e.g., `KycDocument.filePath`, `Employee.profilePhotoUrl`).
 
 ---
 
@@ -100,7 +99,6 @@ R2_SECRET_ACCESS_KEY=xxxx
 | File Type | Max Size |
 |---|---|
 | KYC Document | 10 MB |
-| Selfie | 5 MB |
 | Profile Photo | 5 MB |
 
 Size limits enforced by NestJS `FileInterceptor` in the controller.
@@ -112,5 +110,4 @@ Size limits enforced by NestJS `FileInterceptor` in the controller.
 | Category | Accepted MIME Types |
 |---|---|
 | KYC Documents | `image/jpeg`, `image/png`, `application/pdf` |
-| Selfie | `image/jpeg`, `image/png` |
 | Profile Photo | `image/jpeg`, `image/png` |

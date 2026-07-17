@@ -25,7 +25,6 @@ Computes whether an employee is eligible to submit an advance request and what t
   checks: {
     kycComplete: boolean,
     bankVerified: boolean,
-    selfieVerified: boolean,
     salaryMinimumMet: boolean,
     tenureMet: boolean,
     noActiveAdvance: boolean,
@@ -44,9 +43,8 @@ Computes whether an employee is eligible to submit an advance request and what t
 2. **Employer approved** — `employer.status === APPROVED`
 3. **KYC complete** — all required document types have status `VERIFIED`
 4. **Bank verified** — `bankAccount.verified === true`
-5. **Selfie verified** — `selfieStatus === VERIFIED`
-6. **Minimum salary** — `employee.salaryInHand >= config.minimumSalaryInHand`
-7. **Minimum tenure** — `joiningDate` is at least `minimumTenureMonths` months ago
+5. **Minimum salary** — `employee.salaryInHand >= config.minimumSalaryInHand`
+6. **Minimum tenure** — `joiningDate` is at least `minimumTenureMonths` months ago
 8. **No active advance** — no existing application in a non-terminal status
 9. **Cooldown passed** — last repayment was more than `cooldownDays` ago
 

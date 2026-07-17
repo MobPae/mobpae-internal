@@ -13,7 +13,7 @@ MobPae's evolution from MVP to a full financial wellness platform.
 - ✅ ₹175 platform fee via Razorpay
 - ✅ Monthly employer settlement
 - ✅ Employee app, employer portal, admin panel
-- ✅ Cloudflare R2 for KYC/selfie storage
+- ✅ Cloudflare R2 for KYC storage
 
 ---
 

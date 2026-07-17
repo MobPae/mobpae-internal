@@ -11,10 +11,9 @@ Status key: ✅ Live | 🔧 Partial / In Progress | 🔜 Planned
 | Login / Logout | ✅ | JWT-based, refresh token, session management |
 | Forgot / Reset Password | ✅ | Email link with token |
 | Change Password | ✅ | In-app from profile |
-| Employee Onboarding | ✅ | KYC upload → Bank account → Selfie → Done screen |
+| Employee Onboarding | ✅ | KYC upload → Bank account → Done screen |
 | KYC Upload | ✅ | Aadhaar, PAN, Salary Slip; documents stored in Cloudflare R2 |
 | Bank Account Setup | ✅ | Account number, IFSC, UPI; pending admin verification |
-| Selfie Upload | ✅ | Identity verification; admin verifies/rejects |
 | Dashboard | ✅ | Advance limit, salary, active application status |
 | Advance Request | ✅ | Amount slider, purpose category, repayment preview |
 | Application Status Tracking | ✅ | Real-time status display |
@@ -60,10 +59,9 @@ Status key: ✅ Live | 🔧 Partial / In Progress | 🔜 Planned
 | Login / Logout | ✅ | |
 | Dashboard | ✅ | Platform-wide metrics |
 | Employer Management | ✅ | List, view, approve, reject, suspend |
-| Employee Management | ✅ | List, view, verify KYC and selfie |
+| Employee Management | ✅ | List, view, verify KYC |
 | KYC Review | ✅ | Grouped by employer and employee, verify/reject documents |
 | Bank Account Review | ✅ | Verify or reject submitted bank accounts |
-| Selfie Verification | ✅ | Approve or reject selfie uploads |
 | Loan Application Review | ✅ | Final approve/reject after employer |
 | Disbursal Management | ✅ | Initiate disbursal, track status |
 | Repayments Management | ✅ | View all, mark as paid |
@@ -99,7 +97,7 @@ Status key: ✅ Live | 🔧 Partial / In Progress | 🔜 Planned
 | Disbursal Record | ✅ | Bank snapshot, provider reference, retry count |
 | Repayment Record | ✅ | Full breakdown; linked to settlement line items |
 | Employer Settlement | ✅ | Monthly cycle, line items, payment tracking |
-| File Storage (Cloudflare R2) | ✅ | KYC, selfie, profile photo; signed URL access |
+| File Storage (Cloudflare R2) | ✅ | KYC, profile photo; signed URL access |
 | Email Notifications | ✅ | Transactional emails (approval, rejection, etc.) |
 | Audit Logging | ✅ | Every significant action logged |
 | Payroll Calendar Logic | ✅ | Recovery date computed from employer's payroll day and cutoff day |

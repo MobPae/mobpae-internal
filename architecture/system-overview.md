@@ -39,7 +39,7 @@
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
 │   PostgreSQL      │  │  Cloudflare R2   │  │    Razorpay      │
 │   (Primary DB)    │  │  (File Storage)  │  │  (Payments)      │
-│   via Prisma ORM  │  │  KYC, Selfie,    │  │  Orders &        │
+│   via Prisma ORM  │  │  KYC,            │  │  Orders &        │
 │                   │  │  Profile Photos  │  │  Webhooks        │
 └──────────────────┘  └──────────────────┘  └──────────────────┘
 ```

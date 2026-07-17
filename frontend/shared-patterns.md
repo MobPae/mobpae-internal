@@ -140,7 +140,7 @@ Accessed as `import.meta.env.VITE_API_URL`.
 
 ## File Upload Pattern
 
-KYC documents, selfies, and profile photos are uploaded as `multipart/form-data`:
+KYC documents and profile photos are uploaded as `multipart/form-data`:
 
 ```typescript
 const formData = new FormData();

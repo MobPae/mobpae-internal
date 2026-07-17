@@ -215,7 +215,7 @@ Type any short description like `init` and press Enter.
 Check that `VITE_API_URL` is set correctly and the backend is running.
 
 **File uploads fail**  
-R2 credentials are not configured. For local dev, KYC/selfie upload will fail — this is expected unless you set up a real R2 bucket.
+R2 credentials are not configured. For local dev, KYC upload will fail — this is expected unless you set up a real R2 bucket.
 
 ---
 

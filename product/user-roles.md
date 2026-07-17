@@ -22,7 +22,6 @@ MobPae has three distinct user roles. Each role maps to a separate interface and
 | Pay the ₹175 platform fee | Via Razorpay after employer approval |
 | View repayment schedule | Exact amount due, due date, breakdown |
 | Upload KYC documents | Aadhaar, PAN, Salary Slip |
-| Upload a selfie | For identity verification |
 | Add/view bank account | Salary account for advance disbursal |
 | View activity history | All past advances and repayments |
 | Manage profile | Name, photo, change password |
@@ -72,7 +71,7 @@ MobPae has three distinct user roles. Each role maps to a separate interface and
 | Action | Notes |
 |---|---|
 | Manage employers | Approve, reject, suspend employer accounts |
-| Manage employees | View, update, verify selfies and KYC |
+| Manage employees | View, update, verify KYC |
 | Final approval/rejection of advances | Second approval gate after employer |
 | Initiate disbursals | Send money to employee bank account |
 | View and manage repayments | Mark as paid, track overdue |

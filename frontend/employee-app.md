@@ -2,13 +2,13 @@
 
 **Repo:** `mobpae-app`  
 **Stack:** React 19, TypeScript, Vite, custom CSS (no component library)  
-**Target:** Mobile browser (PWA-style, fixed 390px width shell)
+**Target:** Mobile browser / Capacitor native (390px shell)
 
 ---
 
 ## Architecture
 
-The app is a single-page application with a custom view router. There is no React Router — navigation is managed with a `activeView` state variable in `useEmployeeApp`.
+The app is a single-page application with a custom view router. There is no React Router — navigation is managed with an `activeView` state variable in `useEmployeeApp`.
 
 ```
 main.tsx
@@ -28,12 +28,12 @@ main.tsx
 | `LoginScreen` | `home` (unauthenticated) | Email/password login |
 | `ForgotPasswordScreen` | `forgot-password` | Request reset email |
 | `ResetPasswordScreen` | `reset-password` | Enter new password via token |
+| `ChangePasswordScreen` (forced) | gate — no view key | First-time forced password set |
+| `TermsAcceptanceScreen` | gate — no view key | T&C acceptance gate (once) |
 | `DashboardScreen` | `home` (authenticated) | Hero card, eligibility, quick actions |
 | `AdvanceScreen` | `advance` | Amount selector, repayment preview, apply CTA |
 | `ActivityScreen` | `activity` | Tabs: Active requests / Repayments / History |
-| `RepaymentScheduleScreen` | `repayment` | Breakdown of scheduled repayment |
-| `TrackingScreen` | `tracking` | Track active request through status stages |
-| `MembershipScreen` | `membership` | Platform info / tier display |
+| `RepaymentScheduleScreen` | `repayments` | Breakdown of scheduled repayment |
 | `ProfileScreen` | `profile` | User profile, settings links |
 | `OnboardingKycScreen` | `onboarding-kyc` | Upload KYC documents |
 | `OnboardingBankScreen` | `onboarding-bank` | Add bank account |
@@ -41,7 +41,40 @@ main.tsx
 | `NotificationsScreen` | `notifications` | Notification list |
 | `HelpScreen` | `help` | FAQ / help topics |
 | `LegalScreen` | `legal` | Terms, Privacy Policy links |
-| `ChangePasswordScreen` | `change-password` | Update password |
+| `ChangePasswordScreen` (voluntary) | `change-password` | Update password from Profile |
+
+---
+
+## First-Time Login Gate Flow
+
+New employees are created with a temporary password by the employer. The app enforces two sequential gates before the main dashboard is shown:
+
+```
+Login
+  ↓ (passwordChanged === false in login response)
+ChangePasswordScreen [forced=true]
+  — "Log out" link on left; no tab bar; no navigation bypass
+  — On success → new tokens issued; termsAccepted checked from response
+  ↓ (termsAccepted === false)
+TermsAcceptanceScreen
+  — "Log out" link top-right; cannot skip
+  — On accept → POST /auth/accept-terms → loadEmployee()
+  ↓
+Dashboard (normal app)
+```
+
+**Gate persistence across page refreshes:**  
+Both gate flags are persisted in localStorage so a refresh does not bypass the gates:
+
+| Key | Value | Cleared when |
+|---|---|---|
+| `mobpae_must_change_pwd` | `"1"` | Password successfully changed |
+| `mobpae_must_accept_terms` | `"1"` | Terms accepted (POST /auth/accept-terms succeeds) |
+
+Both keys are also cleared on `logout()` and on session expiry.
+
+**T&C check on every app load:**  
+`loadEmployee()` reads `termsAccepted` from the `loadAppState()` response — no separate network call. `GET /employees/me` is fetched exactly once, and `termsAccepted` is extracted from that same response alongside all other app data.
 
 ---
 
@@ -49,15 +82,16 @@ main.tsx
 
 No React Router. All navigation goes through `app.setActiveView(viewKey)`.
 
-The `EmployeeApp.tsx` component is a large conditional render block:
+The `EmployeeApp.tsx` component renders in this order:
 ```tsx
-if (!app.isLoggedIn) → render auth screens
-if (app.activeView === 'advance') → render AdvanceScreen
-if (app.activeView === 'activity') → render ActivityScreen
-// etc.
+if (!app.isLoggedIn)           → auth screens (login / forgot-pwd / reset-pwd)
+if (app.mustChangePassword)    → ChangePasswordScreen [forced=true]  ← gate 1
+if (app.mustAcceptTerms)       → TermsAcceptanceScreen               ← gate 2
+if (app.loadState !== 'ready') → skeleton / error screen
+→ AppShell with tab bar + current view
 ```
 
-Tab bar (bottom navigation) is rendered inside `AppShell` and always visible when authenticated.
+Tab bar (bottom navigation) is rendered inside `AppShell` and only visible after both gates pass.
 
 ---
 
@@ -68,29 +102,35 @@ Located at `src/hooks/useEmployeeApp.ts`. This is the single source of truth for
 **Key state:**
 ```typescript
 isLoggedIn: boolean
-loadState: 'idle' | 'loading' | 'error' | 'success'
-appState: AppState        // Full response from GET /employees/me/app-state
-activeView: View          // Current screen
-loginError: string | null
-activeRequest: AdvanceRequest | null  // From appState.activeApplication
+loadState: 'idle' | 'loading' | 'ready' | 'error'
+appState: AppState            // Populated by loadAppState()
+activeView: View              // Current screen
+mustChangePassword: boolean   // First-time forced password gate
+mustAcceptTerms: boolean      // T&C acceptance gate
+loginError: string
+changingPassword: boolean
+changePasswordError: string
+eligibility: EligibilityResult | null
 kycComplete: boolean
 bankComplete: boolean
 ```
 
 **Key methods:**
 ```typescript
-login(email, password)
-logout()
+login(email, password)         // Sets mustChangePassword / mustAcceptTerms if needed
+logout()                       // Clears tokens, localStorage flags, all state
+changePassword(current, next)  // Forced: issues new tokens + checks termsAccepted
+                               // Voluntary: invalidates all sessions → logout
+acceptTerms()                  // POST /auth/accept-terms → clears mustAcceptTerms flag
+loadEmployee(checkOnboarding?) // Main data fetch; checks T&C from loadAppState result
 forgotPassword(email)
 resetPassword(token, password)
-submitAdvanceRequest(amount, purpose)
+submitSalaryAdvance(amount)
 cancelAdvanceRequest(id)
-refreshAppState()           // Re-fetch from /employees/me/app-state
-initiatePayment(loanApplicationId)
-verifyPayment(orderId, paymentId, signature)
+refresh()                      // Manual pull-to-refresh
 ```
 
-**App state refresh:** Called on login and whenever a state-changing action completes (apply, cancel, payment verified). Calls `GET /employees/me/app-state`.
+**`loadAppState()` in `api.ts`** calls `GET /employees/me` once and returns the full `AppState` plus a `termsAccepted: boolean` field. This eliminates a previously separate `checkTermsAccepted()` call that hit `/employees/me` twice on every load.
 
 ---
 
@@ -100,7 +140,7 @@ verifyPayment(orderId, paymentId, signature)
 Wraps all authenticated screens. Contains the header and TabBar.
 
 ### TabBar
-Bottom navigation with 4 tabs: Home, Activity, Advance, Profile. Active tab is inferred from `activeView`.
+Bottom navigation with 5 tabs: Home, Activity, Advance, Repayments, Profile. Active tab is inferred from `activeView`.
 
 ---
 
@@ -116,6 +156,25 @@ All API calls go through `src/services/api.ts`. This file exports typed function
 
 ---
 
+## AppState Type
+
+```typescript
+type AppState = {
+  profile: EmployeeProfile;
+  dashboard: EmployeeDashboard | null;
+  documents: KycDocument[];
+  bankAccount: BankAccount | null;
+  platformFeeConfig: PlatformFeeConfig | null;
+  requests: AdvanceRequest[];
+  rawNotifications: AppNotification[];
+  peerActivity: PeerActivity | null;
+};
+```
+
+All notification rendering uses `rawNotifications`. There is no `notifications: string[]` field — that dead field was removed.
+
+---
+
 ## Themes
 
 Light and dark mode. Controlled by `useTheme` hook. CSS classes applied at root: `app-root--light` / `app-root--dark`. All color values are CSS custom properties (variables).
@@ -126,13 +185,15 @@ Light and dark mode. Controlled by `useTheme` hook. CSS classes applied at root:
 
 | File | Purpose |
 |---|---|
-| `src/screens/EmployeeApp.tsx` | Root view router |
+| `src/screens/EmployeeApp.tsx` | Root view router + gate rendering |
 | `src/hooks/useEmployeeApp.ts` | All state + API logic |
 | `src/services/api.ts` | All typed fetch functions |
 | `src/types/app.ts` | All TypeScript types (AppState, AdvanceRequest, etc.) |
+| `src/data/emptyState.ts` | Default AppState used before first load |
 | `src/styles.css` | All CSS — custom properties, layout, component styles |
 | `src/config.ts` | API base URL, environment config |
 | `src/hooks/useSignedUrl.ts` | Fetches signed URLs for private R2 files |
+| `src/services/pushNotifications.ts` | Capacitor push notification registration |
 
 ---
 
@@ -140,10 +201,11 @@ Light and dark mode. Controlled by `useTheme` hook. CSS classes applied at root:
 
 Employee must complete these steps before the Advance screen unlocks:
 
-1. App activated (password set via email) → handled by backend
-2. KYC uploaded → `OnboardingKycScreen`
-3. Bank account added → `OnboardingBankScreen`
-4. Admin verifies KYC, bank, selfie → reflected in `appState.eligibility.checks`
+1. First-time password change (gate 1) → `ChangePasswordScreen [forced]`
+2. T&C acceptance (gate 2) → `TermsAcceptanceScreen`
+3. KYC uploaded → `OnboardingKycScreen`
+4. Bank account added → `OnboardingBankScreen`
+5. Admin verifies KYC + bank → reflected in `eligibility.eligible`
 
 Until all checks pass, the Advance screen shows a blocker card with a CTA to complete the next step.
 
@@ -151,7 +213,7 @@ Until all checks pass, the Advance screen shows a blocker card with a CTA to com
 
 ## Platform Fee Flow (Razorpay)
 
-After employer approval, the employee must pay ₹175:
+After employer approval, the employee may need to pay a platform fee:
 
 1. `GET /platform-fees/config` — get amount and Razorpay key
 2. `POST /platform-fees/loan-applications/:id/initiate-payment` — create Razorpay order
@@ -160,3 +222,16 @@ After employer approval, the employee must pay ₹175:
 5. Backend verifies HMAC signature and moves application to `READY_FOR_DISBURSAL`
 
 The Razorpay checkout JS SDK is loaded via CDN in `index.html`.
+
+---
+
+## Push Notifications (Capacitor)
+
+The app is wrapped with Capacitor for native iOS/Android builds. Push notifications are registered on first authenticated app load via `src/services/pushNotifications.ts`:
+
+1. Request permission via `PushNotifications.requestPermissions()`
+2. Register with APNs/FCM via `PushNotifications.register()`
+3. On token received: `POST /notifications/device-token` to store in backend
+4. On logout: `DELETE /notifications/device-token` to unregister
+
+Firebase is the push provider. The backend `PushNotificationService` wraps firebase-admin and is triggered from `LoanApplicationsService` on status transitions.

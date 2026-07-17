@@ -162,6 +162,14 @@ Uses `httpClient` (unauthenticated axios instance) directly since the user has n
 
 `ProtectedRoute` wrapper redirects to `/login` if not authenticated.
 
+### First-Login Password Gate
+
+When the backend returns `passwordChanged: false` in the login response (first-ever login with a temporary password), `LoginPage` immediately redirects to `/change-password` instead of `/dashboard`. The user must set a new password before accessing any other page.
+
+- `/change-password` is wrapped in `ProtectedRoute` but outside `EmployerLayout` — no sidebar or navigation is visible
+- A "Log out" button (top-right) lets the user escape if needed
+- On success: `authService.logout()` is called, session is cleared, and the user is redirected to `/login` to sign in with their new password
+
 ---
 
 ## Salary Request Approval Flow

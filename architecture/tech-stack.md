@@ -46,7 +46,7 @@
 
 | Service | What It Does |
 |---|---|
-| **Cloudflare R2** | Object storage for KYC documents, selfies, profile photos. S3-compatible API. Files are never public — always accessed via signed URLs. |
+| **Cloudflare R2** | Object storage for KYC documents, profile photos. S3-compatible API. Files are never public — always accessed via signed URLs. |
 | **Razorpay** | Payment gateway. Used for: (1) Platform fee collection from employees (₹175 per advance). Future: disbursal payouts to employee bank accounts. |
 | **PostgreSQL** | Primary database. All application data: users, loans, repayments, settlements, KYC, notifications. |
 | **SMTP / Email** | Transactional emails: password reset, approval/rejection notifications, settlement reports. |

@@ -56,6 +56,9 @@ Initial schema created all core models: `User`, `Employer`, `Employee`, `LoanApp
 ### Snapshot Fields
 `LoanApplication` gained all `snapshot*` fields in a batch migration. Previously rates were read from config at read-time; snapshots freeze them permanently at submission time.
 
+### Selfie Verification Removal
+Selfie identity verification (`Employee.selfieUrl`/`selfieStatus`/`selfieVerifiedAt`/`selfieVerifiedBy`, `SelfieStatus` enum, `LoanProductConfig.eligibilityRules.requiresActiveSelfie`) was removed from the product — it was never surfaced in the admin panel and never implemented in the employee app. Migration `20260717120000_remove_selfie_verification` drops the columns, index, and enum. **Not applied automatically** — written for manual review before running `prisma migrate deploy`.
+
 ---
 
 ## Production Notes

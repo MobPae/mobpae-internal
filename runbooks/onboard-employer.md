@@ -124,24 +124,22 @@ Each employee must:
 1. Activate account (set password via email link)
 2. Upload KYC documents (Aadhaar, PAN, Salary Slip)
 3. Add bank account
-4. Upload selfie
 
 ---
 
-## Step 7: Admin Verifies KYC, Bank, and Selfie
+## Step 7: Admin Verifies KYC and Bank
 
 In admin panel: **KYC** section → grouped by employee → verify each document.
 
 **For each employee:**
 - Open KYC drawer → view each document via signed URL → click **Verify** or **Reject**
 - Open Bank Verification → check account details → click **Verify**
-- Open Employee → Selfie tab → compare selfie with Aadhaar photo → **Verify** or **Reject**
 
 ---
 
 ## Step 8: Employee Is Now Eligible
 
-Once KYC, bank, and selfie are all verified AND loan limit is set, the employee's advance button unlocks in the app.
+Once KYC and bank are all verified AND loan limit is set, the employee's advance button unlocks in the app.
 
 Verify via:
 ```
@@ -161,6 +159,5 @@ Check `eligibility.isEligible = true` and all `checks` are `true`.
 - [ ] All employees have activated accounts
 - [ ] KYC verified for each employee
 - [ ] Bank accounts verified for each employee
-- [ ] Selfies verified for each employee
 - [ ] Loan limits set for each employee
 - [ ] Test: one employee logs in → Advance tab shows eligible

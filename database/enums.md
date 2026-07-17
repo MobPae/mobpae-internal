@@ -55,18 +55,6 @@ Tracks employment state.
 
 ---
 
-## SelfieStatus
-
-Status of the employee's selfie photo used for identity verification.
-
-| Value | Meaning |
-|---|---|
-| `PENDING` | Selfie uploaded; awaiting admin review |
-| `VERIFIED` | Admin confirmed identity |
-| `REJECTED` | Mismatch or poor quality; employee must resubmit |
-
----
-
 ## KycStatus
 
 Status of a single KYC document (each doc has its own status).

@@ -40,7 +40,7 @@ Guards enforced at controller level:
 **EMPLOYER cannot:**
 - See employees of other employers
 - Set their own loan limits (admin-only)
-- Verify KYC, bank accounts, or selfies
+- Verify KYC or bank accounts
 - Create or modify loan product config
 - Access admin panel endpoints
 

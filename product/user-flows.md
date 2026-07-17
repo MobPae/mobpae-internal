@@ -30,12 +30,10 @@ Employee App
   └─ Sets password
   └─ Uploads KYC (Aadhaar, PAN, Salary Slip)
   └─ Uploads bank account details (account number, IFSC)
-  └─ Takes selfie
 
 MobPae Admin Panel
   └─ Reviews KYC documents → Verified / Rejected
   └─ Reviews bank account → Verified / Rejected
-  └─ Reviews selfie → Verified / Rejected
   └─ Sets LoanLimit (max advance amount for this employee)
 
 Employee App

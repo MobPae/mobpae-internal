@@ -42,7 +42,7 @@ MobPae is a fintech platform that enables salaried employees to access their ear
 | [employer-settlements](./backend/modules/employer-settlements.md) | Monthly settlement cycle |
 | [eligibility](./backend/modules/eligibility.md) | How advance limits are computed |
 | [pricing](./backend/modules/pricing.md) | Interest formula and fee math |
-| [employees](./backend/modules/employees.md) | Employee onboarding, KYC, selfie |
+| [employees](./backend/modules/employees.md) | Employee onboarding, KYC |
 | [employers](./backend/modules/employers.md) | Employer setup and product config overrides |
 | [kyc-documents](./backend/modules/kyc-documents.md) | KYC upload and verification |
 | [bank-accounts](./backend/modules/bank-accounts.md) | Bank account setup and verification |

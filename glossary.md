@@ -91,9 +91,6 @@ MobPae provides the advance money from its own capital, not from an NBFC. `LoanA
 **Settlement Line Item**  
 One row within an `EmployerSettlement` representing a single employee's advance. Contains frozen employee details and the breakdown (principal, interest, etc.).
 
-**Selfie**  
-A photo the employee takes of themselves during onboarding. Used for identity verification (admin visually matches it against Aadhaar photo). Status: PENDING → VERIFIED or REJECTED.
-
 **Snapshot**  
 All rate/salary/date fields frozen on `LoanApplication` at submission time. Prefixed with `snapshot` (e.g., `snapshotAnnualInterestRate`, `snapshotSalaryInHand`). Ensures the repayment calculation is always based on the exact conditions at submission, even if rates change later.
 

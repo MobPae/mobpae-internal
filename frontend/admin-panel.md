@@ -36,7 +36,7 @@ src/
 │   ├── dashboard/
 │   └── auth/
 └── hooks/
-    └── useSignedUrl.ts  (fetch signed URLs for KYC docs, selfies)
+    └── useSignedUrl.ts  (fetch signed URLs for KYC docs)
 ```
 
 ---
@@ -46,18 +46,26 @@ src/
 | Route | Description |
 |---|---|
 | `/login` | Admin login |
-| `/` | Dashboard — action queue, stats, recent activity |
+| `/dashboard` | Dashboard — KPI stats, pending-review counts |
+| `/employer-enquiries` | Website "Request a Demo" leads |
 | `/employers` | Employer list, create, status management |
-| `/employees` | All employees with KYC/bank/selfie status |
+| `/employees` | All employees with KYC/bank verification status |
 | `/kyc` | KYC document review (grouped by employee) |
 | `/bank-verification` | Bank account verification queue |
 | `/loan-applications` | All salary advance requests |
 | `/disbursals` | Disbursal management (create + trigger) |
+| `/recoveries` | Recovery/overdue repayment tracking |
 | `/repayments` | All repayment records |
 | `/settlements` | All employer settlements |
+| `/revenue` | Platform revenue report (interest, platform fee, late fee — employer/employee breakdown) |
 | `/platform-fees` | Platform fee records, waive |
 | `/settings` | Platform config, app information |
-| `/loan-products` | Loan product config management |
+| `/loan-product` | Loan product config management |
+| `/audit-logs` | Admin action audit trail |
+| `/jobs` | Scheduled backend job policies (reference only, no run history) |
+| `/app-information` | Employee app content blocks (FAQ, help, legal) |
+
+`/membership` and the legacy membership revenue view do not exist — membership was removed entirely; `/revenue` (backed by `GET /reports/revenue`) replaced the old `/membership/revenue-summary` usage.
 
 ---
 
@@ -74,9 +82,10 @@ src/
 ### KYC Review (`src/components/kyc/`)
 
 - `KycGroupedTable` — lists employees grouped by KYC status
-- `KycGroupedDrawer` — shows all documents for one employee; verify/reject each
+- `KycGroupedDrawer` — shows all KYC documents for one employee; verify/reject each (PAN, Aadhaar, Salary Slip)
 - `KycDrawer` — single document detail with signed URL image preview
 - Uses `useSignedUrl` hook to fetch 15-min signed URLs for each document image
+- KYC review is document-only (Aadhaar, PAN, Salary Slip). Selfie identity verification does not exist anywhere in the product — removed from the backend, and was never implemented in the admin panel or employee app.
 
 ### Bank Verification (`src/components/bank-verification/`)
 
@@ -104,18 +113,15 @@ src/
 - `DisbursalsTable` — all disbursals with status filter
 - `DisbursalDrawer` — create disbursal from an approved application, trigger payout
 
-### Dashboard (`src/components/dashboard/`)
+### Dashboard (`src/pages/DashboardPage.tsx`)
 
-- `ActionQueue` — pending KYC reviews, disbursals, applications needing action
-- `FinancialOverview` — total disbursed, outstanding, collected
-- `RecentSalaryRequests` — last 10 applications
-- `SystemOverview` — employer count, employee count, active advances
+Single-page implementation (no longer split into subcomponents — the old `ActionQueue`/`FinancialOverview`/`RecentSalaryRequests`/`SystemOverview` components under `src/components/dashboard/` were dead code and were deleted; only the shared `StatCard` remains there). Pulls from `getAdminDashboard()`, `getLoanApplications()`, `getEmployers()`, and `getAuditLogs()` to show KPI stat cards, recent salary requests with status badges, and recent activity — all real data, no hardcoded/mock values.
 
 ---
 
 ## Signed URL Pattern for Private Files
 
-KYC documents and selfies are stored in Cloudflare R2 as private objects. The admin panel fetches a signed URL before displaying any image.
+KYC documents are stored in Cloudflare R2 as private objects. The admin panel fetches a signed URL before displaying any image.
 
 ```typescript
 // src/hooks/useSignedUrl.ts
@@ -150,7 +156,7 @@ Same pattern as employer portal:
 
 ## Loan Product Config Page
 
-`/loan-products` allows admin to:
+`/loan-product` allows admin to:
 1. View active config (eligibility rules, pricing rules, operational rules)
 2. Create a new config version (old version is deactivated, cannot be edited)
 
@@ -165,6 +171,8 @@ Shared with employer portal. Both use the same CSS custom property names. Define
 - `mobpae-admin/mobpae-admin/src/styles.css` (or equivalent)
 
 Key tokens: `--color-primary`, `--color-surface-1`, `--color-surface-2`, `--color-border`, `--color-text-primary`, `--color-text-muted`, `--color-success`, `--color-warning`, `--color-danger`.
+
+**Font:** Manrope (Google Fonts), loaded via `<link>` in `index.html`. `font-family: "Manrope", ui-sans-serif, sans-serif;`.
 
 ---
 

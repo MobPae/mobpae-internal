@@ -58,8 +58,6 @@ The base authentication model. Every login goes through here.
 | `phone` | String | |
 | `salaryInHand` | Decimal | Net monthly salary in ₹ |
 | `profilePhotoUrl` | String? | R2 file key |
-| `selfieUrl` | String? | R2 file key |
-| `selfieStatus` | Enum SelfieStatus | PENDING / VERIFIED / REJECTED |
 | `joiningDate` | DateTime? | For tenure calculation |
 | `appActivated` | Boolean | True once employee sets password |
 | `employmentStatus` | Enum EmployeeStatus | ACTIVE / INACTIVE |
@@ -124,7 +122,6 @@ Immutable versioned configuration for a product. When you need to change rates, 
   "minimumTenureMonths": 0,
   "requiresKyc": true,
   "requiresBankAccount": true,
-  "requiresActiveSelfie": true,
   "maxRequestsPerCycle": 1,
   "cooldownDays": 0
 }

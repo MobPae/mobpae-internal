@@ -133,21 +133,8 @@ Response: {
     "PAN": "VERIFIED",
     "SALARY_SLIP": "PENDING"
   },
-  "bankAccount": "VERIFIED",
-  "selfie": "VERIFIED"
+  "bankAccount": "VERIFIED"
 }
-```
-
-### POST /employees/:id/selfie/verify
-Approve an employee's selfie.
-```json
-Response: { "selfieStatus": "VERIFIED" }
-```
-
-### POST /employees/:id/selfie/reject
-```json
-Request:  { "note": "string" }
-Response: { "selfieStatus": "REJECTED" }
 ```
 
 ---
@@ -392,6 +379,48 @@ Email settlement report to employer.
 
 ---
 
+## Reports
+
+### GET /reports/revenue
+Platform revenue report, grouped by employer with employees nested inside — replaces the old (removed) membership revenue summary.
+```
+Query: ?employerId=uuid&startDate=2026-07-01&endDate=2026-07-31   (all optional; dates accept YYYY-MM-DD or ISO datetime)
+```
+```json
+Response: {
+  "totalRevenue": 925,
+  "interestRevenue": 250,
+  "platformFeeRevenue": 350,
+  "lateFeeRevenue": 325,
+  "byEmployer": [
+    {
+      "employerId": "uuid",
+      "companyName": "Northstar Retail Pvt Ltd",
+      "companyCode": "NORTHSTAR",
+      "interestRevenue": 250,
+      "platformFeeRevenue": 350,
+      "lateFeeRevenue": 325,
+      "totalRevenue": 925,
+      "employeeCount": 3,
+      "employees": [
+        {
+          "employeeId": "uuid",
+          "name": "Arjun Sharma",
+          "employeeCode": "EMP001",
+          "interestRevenue": 250,
+          "platformFeeRevenue": 175,
+          "lateFeeRevenue": 0,
+          "totalRevenue": 425
+        }
+      ]
+    }
+  ]
+}
+```
+Revenue sources: `platformFeeRevenue` = paid `LoanApplicationFee`; `interestRevenue` = paid `Repayment.interestAmount`; `lateFeeRevenue` = paid `EmployerSettlement.lateFeeAmount`. Late fee is tracked at the employer-settlement level, not per employee — nested `employees[].lateFeeRevenue` is always `0`; employer-level and grand totals are correct.
+
+---
+
 ## Loan Products & Config
 
 ### GET /loan-products
@@ -419,8 +448,7 @@ Request: {
     "maxRequestsPerCycle": 1,
     "cooldownDays": 0,
     "requiresKyc": true,
-    "requiresBankAccount": true,
-    "requiresActiveSelfie": true
+    "requiresBankAccount": true
   },
   "pricingRules": {
     "annualInterestRate": 36,
@@ -441,7 +469,7 @@ Request: {
 ## Files (Signed URLs)
 
 ### GET /files/signed-url?key=<r2_key>
-Get a 15-minute signed URL to view any private file (KYC docs, selfies, etc.).
+Get a 15-minute signed URL to view any private file (KYC documents, bank proofs, etc.).
 ```json
 Response: { "url": "https://r2.mobpae.com/..." }
 ```

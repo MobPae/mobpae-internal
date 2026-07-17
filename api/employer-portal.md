@@ -58,8 +58,7 @@ Response: [
     "employmentStatus": "ACTIVE",
     "appActivated": true,
     "kycStatus": "VERIFIED",
-    "bankStatus": "VERIFIED",
-    "selfieStatus": "VERIFIED"
+    "bankStatus": "VERIFIED"
   }
 ]
 ```

@@ -27,7 +27,7 @@ mobpae-backend/
 │   │
 │   ├── auth/                  # JWT auth, login, refresh, password reset
 │   ├── users/                 # User model (thin — most data on Employee/Employer)
-│   ├── employees/             # Employee CRUD, selfie, profile photo
+│   ├── employees/             # Employee CRUD, profile photo
 │   ├── employers/             # Employer CRUD, status management
 │   ├── kyc-documents/         # KYC upload and admin review
 │   ├── bank-accounts/         # Bank account setup and admin verification

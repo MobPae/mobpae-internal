@@ -1,6 +1,6 @@
 # Module: employees
 
-Manages employee accounts, onboarding, selfie verification, and profile.
+Manages employee accounts, onboarding, and profile.
 
 **Controller:** `src/employees/employees.controller.ts`
 
@@ -22,9 +22,6 @@ Manages employee accounts, onboarding, selfie verification, and profile.
 | GET | `/employees/me/profile` | EMPLOYEE | Profile card |
 | GET | `/employees/me/peer-activity` | EMPLOYEE | Anonymised company activity |
 | POST | `/employees/profile-photo` | EMPLOYEE | Upload profile photo |
-| POST | `/employees/selfie` | EMPLOYEE | Upload selfie |
-| POST | `/employees/:id/selfie/verify` | ADMIN | Verify employee selfie |
-| POST | `/employees/:id/selfie/reject` | ADMIN | Reject employee selfie |
 | GET | `/employees/:id/kyc-status` | ADMIN, EMPLOYEE | Get KYC status summary |
 
 ---
@@ -44,7 +41,6 @@ The most important endpoint for the employee app. Returns everything needed to r
     "checks": {
       "kycComplete": boolean,
       "bankVerified": boolean,
-      "selfieVerified": boolean,
       "salaryMinimumMet": boolean,
       "tenureMet": boolean,
       "noActiveAdvance": boolean,
@@ -53,7 +49,6 @@ The most important endpoint for the employee app. Returns everything needed to r
   },
   "kycStatus": "VERIFIED | PENDING | REJECTED | NOT_SUBMITTED",
   "bankStatus": "VERIFIED | PENDING | NOT_ADDED",
-  "selfieStatus": "VERIFIED | PENDING | REJECTED",
   "activeApplication": { ...full loan application if exists... },
   "scheduledRepayment": { ...if any... },
   "platformFee": { "amount": 175, "amountPaise": 17500, ... }
@@ -69,14 +64,7 @@ Employees must complete these steps before they can request an advance:
 1. **Activate account** — set password from email link
 2. **Upload KYC** — Aadhaar, PAN, Salary Slip
 3. **Add bank account** — account number + IFSC
-4. **Upload selfie** — for identity verification
-5. **Admin verifies KYC, bank, and selfie**
-6. **Admin sets LoanLimit** — max advance amount for this employee
+4. **Admin verifies KYC and bank**
+5. **Admin sets LoanLimit** — max advance amount for this employee
 
 The `app-state` endpoint tracks which steps are complete.
-
----
-
-## Selfie
-
-The selfie is separate from KYC documents. It is used for identity verification (face matching). Status values: `PENDING`, `VERIFIED`, `REJECTED`. Admin verifies selfies from the admin panel (compared visually with Aadhaar photo if needed).
